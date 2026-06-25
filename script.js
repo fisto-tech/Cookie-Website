@@ -61,14 +61,47 @@ let initialState = null;
 let initialContainerY = null;
 
 loader.load(
-	"https://bato-web-agency.github.io/bato-shared/models/drip_donut.glb",
+	"./cookie-1.glb",
 	(gltf) => {
 		model = gltf.scene;
 
-		model.children[0].children[0].children[0].children[0].children[1].children[0].children[0].material.color.set(
-			"#ffc6f3"
-		);
-		model.rotation.set(0, 1.5, 0.75);
+		// model.children[0].children[0].children[0].children[0].children[1].children[0].children[0].material.color.set(
+		// 	"#ffc6f3"
+		// );
+
+		// Center and scale the model automatically
+		const box = new THREE.Box3().setFromObject(model);
+		const center = box.getCenter(new THREE.Vector3());
+		const size = box.getSize(new THREE.Vector3());
+		const maxDim = Math.max(size.x, size.y, size.z);
+		
+		// Normalize the cookie to a reasonable size
+		const targetSize = 3.5; // Increased scale for the cookie
+		const scale = targetSize / maxDim;
+		
+		model.scale.set(scale, scale, scale);
+		model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+		
+        // The cookie is centered here.
+        const centeredGroup = new THREE.Group();
+        centeredGroup.add(model);
+        
+        // The wrapper applies a specific rotation (0, 1.5, 0.75) for the GSAP animations.
+        // To make the cookie perfectly face the camera (like an "O"), we calculate the exact inverse
+        // and apply it, then rotate the cookie 90 degrees on X to face the camera.
+        const wrapperEuler = new THREE.Euler(0, 1.5, 0.75, "XYZ");
+        const wrapperQuat = new THREE.Quaternion().setFromEuler(wrapperEuler);
+        const faceCameraEuler = new THREE.Euler(Math.PI / 2, 0, 0, "XYZ");
+        const faceCameraQuat = new THREE.Quaternion().setFromEuler(faceCameraEuler);
+        
+        centeredGroup.quaternion.copy(wrapperQuat).invert().multiply(faceCameraQuat);
+
+		// Wrap the model in an outer group to apply rotation and position responsive logic safely
+		const wrapper = new THREE.Group();
+		wrapper.add(centeredGroup);
+		wrapper.rotation.set(0, 1.5, 0.75);
+		model = wrapper;
+
 		scene.add(model);
 
 		initialState = {
@@ -152,14 +185,16 @@ window.addEventListener("resize", onResize);
 // Site GSAP Animations
 
 const setupGsapAnimations = (model) => {
-	const donutTop =
-		model.children[0].children[0].children[0].children[0].children[1].children[0]
-			.children[0].material;
-	const donutParticles =
-		model.children[0].children[0].children[0].children[0].children[2].children[0]
-			.children[0];
-	donutParticles.material.transparent = true;
-	donutParticles.material.opacity = 1;
+	// const donutTop =
+	// 	model.children[0].children[0].children[0].children[0].children[1].children[0]
+	// 		.children[0].material;
+	// const donutParticles =
+	// 	model.children[0].children[0].children[0].children[0].children[2].children[0]
+	// 		.children[0];
+	// donutParticles.material.transparent = true;
+	// donutParticles.material.opacity = 1;
+	const donutTop = { color: { r: 1, g: 1, b: 1 } };
+	const donutParticles = { material: { transparent: true, opacity: 1 } };
 	const isMobile = () => window.innerWidth < 768;
 
 	// Hero Section Animations
