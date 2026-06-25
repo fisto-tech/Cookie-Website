@@ -61,7 +61,7 @@ let initialState = null;
 let initialContainerY = null;
 
 loader.load(
-	"./cookie-1.glb",
+	"./src/assets/cookie-1.glb",
 	(gltf) => {
 		model = gltf.scene;
 
@@ -74,27 +74,27 @@ loader.load(
 		const center = box.getCenter(new THREE.Vector3());
 		const size = box.getSize(new THREE.Vector3());
 		const maxDim = Math.max(size.x, size.y, size.z);
-		
+
 		// Normalize the cookie to a reasonable size
-		const targetSize = 3.5; // Increased scale for the cookie
+		const targetSize = 2.25; // Scale model to match the letter K cap height
 		const scale = targetSize / maxDim;
-		
+
 		model.scale.set(scale, scale, scale);
 		model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
-		
-        // The cookie is centered here.
-        const centeredGroup = new THREE.Group();
-        centeredGroup.add(model);
-        
-        // The wrapper applies a specific rotation (0, 1.5, 0.75) for the GSAP animations.
-        // To make the cookie perfectly face the camera (like an "O"), we calculate the exact inverse
-        // and apply it, then rotate the cookie 90 degrees on X to face the camera.
-        const wrapperEuler = new THREE.Euler(0, 1.5, 0.75, "XYZ");
-        const wrapperQuat = new THREE.Quaternion().setFromEuler(wrapperEuler);
-        const faceCameraEuler = new THREE.Euler(Math.PI / 2, 0, 0, "XYZ");
-        const faceCameraQuat = new THREE.Quaternion().setFromEuler(faceCameraEuler);
-        
-        centeredGroup.quaternion.copy(wrapperQuat).invert().multiply(faceCameraQuat);
+
+		// The cookie is centered here.
+		const centeredGroup = new THREE.Group();
+		centeredGroup.add(model);
+
+		// The wrapper applies a specific rotation (0, 1.5, 0.75) for the GSAP animations.
+		// To make the cookie perfectly face the camera (like an "O"), we calculate the exact inverse
+		// and apply it, then rotate the cookie 90 degrees on X to face the camera.
+		const wrapperEuler = new THREE.Euler(0, 1.5, 0.75, "XYZ");
+		const wrapperQuat = new THREE.Quaternion().setFromEuler(wrapperEuler);
+		const faceCameraEuler = new THREE.Euler(Math.PI / 2, 0, 0, "XYZ");
+		const faceCameraQuat = new THREE.Quaternion().setFromEuler(faceCameraEuler);
+
+		centeredGroup.quaternion.copy(wrapperQuat).invert().multiply(faceCameraQuat);
 
 		// Wrap the model in an outer group to apply rotation and position responsive logic safely
 		const wrapper = new THREE.Group();
@@ -134,18 +134,18 @@ const handleResponsive = () => {
 	if (!model) return;
 
 	const dots = [
-		{ width: 1600, scale: 1, position: [0.35, 0, -2], z: 5 },
-		{ width: 1440, scale: 1, position: [0.1, 0, -2], z: 5 },
-		{ width: 1280, scale: 1, position: [0.2, 0, -2], z: 5 },
-		{ width: 1200, scale: 1, position: [0, 0, -2], z: 5 },
-		{ width: 1024, scale: 1, position: [0.5, 0, -3], z: 5.5 },
-		{ width: 960, scale: 1, position: [0.5, 0, -3], z: 6 },
-		{ width: 768, scale: 0.7, position: [0.25, 0, -1.2], z: 6.5 },
-		{ width: 640, scale: 0.7, position: [0.45, 0, -1.2], z: 7 },
-		{ width: 575, scale: 0.6, position: [0.45, -0.1, -1.2], z: 7 },
-		{ width: 475, scale: 0.5, position: [0.3, -0.4, -1.2], z: 7 },
-		{ width: 375, scale: 0.45, position: [0.3, 0, -1.2], z: 7.5 },
-		{ width: 0, scale: 0.35, position: [0.25, -0.5, -1.2], z: 7.5 }
+		{ width: 1600, scale: 1, position: [-0.55, -0.15, -2], z: 5 },
+		{ width: 1440, scale: 1, position: [-0.65, -0.15, -2], z: 5 },
+		{ width: 1280, scale: 1, position: [-0.55, -0.15, -2], z: 5 },
+		{ width: 1200, scale: 1, position: [-0.75, -0.15, -2], z: 5 },
+		{ width: 1024, scale: 1, position: [-0.4, -0.15, -3], z: 5.5 },
+		{ width: 960, scale: 1, position: [-0.4, -0.15, -3], z: 6 },
+		{ width: 768, scale: 0.7, position: [-0.5, -0.15, -1.2], z: 6.5 },
+		{ width: 640, scale: 0.7, position: [-1.0, 0.15, -1.2], z: 7 },
+		{ width: 575, scale: 0.6, position: [-1.0, 0.1, -1.2], z: 7 },
+		{ width: 475, scale: 0.5, position: [-1.1, -0.2, -1.2], z: 7 },
+		{ width: 375, scale: 0.45, position: [-1.1, 0.15, -1.2], z: 7.5 },
+		{ width: 0, scale: 0.35, position: [-1.1, -0.3, -1.2], z: 7.5 }
 	];
 
 	const dot = dots.find((d) => width >= d.width) || dots[dots.length - 1];
@@ -209,7 +209,7 @@ const setupGsapAnimations = (model) => {
 		}
 	});
 
-	timeline.to(model.rotation, { y: Math.PI * 4.5, duration: 1 });
+	timeline.to(model.rotation, { y: Math.PI * 2.5, duration: 1 });
 
 	// Transition Section Animations
 
@@ -227,9 +227,9 @@ const setupGsapAnimations = (model) => {
 		.to(
 			model.scale,
 			{
-				x: window.innerWidth < 575 ? 1.75 : 2.25,
-				y: window.innerWidth < 575 ? 1.75 : 2.25,
-				z: window.innerWidth < 575 ? 1.75 : 2.25,
+				x: window.innerWidth < 575 ? 2: 3,
+				y: window.innerWidth < 575 ? 2 : 3,
+				z: window.innerWidth < 575 ? 2 : 3,
 				duration: 1
 			},
 			"<"
