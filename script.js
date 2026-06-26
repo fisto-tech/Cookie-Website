@@ -280,9 +280,9 @@ const setupGsapAnimations = (model) => {
 			z: () => (window.innerWidth >= 1440 ? 1 : (window.innerWidth >= 1024 ? 0.8 : (window.innerWidth >= 768 ? 0.7 : (window.innerWidth >= 575 ? 0.6 : 0.5)))) * 1.6,
 			duration: 0.5
 		})
-		.fromTo(".flip__splash-container", { scale: 1.5, opacity: 0 }, { scale: 0.9, opacity: 1, duration: 0.5 }, "<")
+		.fromTo(".flip__splash-container", { scale: 0.5, opacity: 0 }, { scale: 1.1, opacity: 1, duration: 0.5 }, "<")
 		.to(modelContainer, { y: "5vh", duration: 0.5 }, "<")
-		.to(model.rotation, { y: Math.PI * 4.5, duration: 0.5 }, "<");
+		.to(model.rotation, { y: Math.PI * 4, duration: 0.5 }, "<");
 
 	// Steps Section Animations
 

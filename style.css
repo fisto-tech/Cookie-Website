@@ -543,6 +543,7 @@ body.menu-open .header {
 	font-weight: 400;
 	color: #cf9e7c;
 	z-index: 102;
+
 }
 
 .hero__second-text {
@@ -1064,6 +1065,19 @@ body.menu-open .header {
 	display: flex;
 	gap: 30px;
 	flex-direction: row;
+}
+
+/* Scroll to Top Button Override */
+.back-to-top, .scroll-to-top, .scroll-up, .scrollToTop, .go-top, .bato-back-to-top, .to-top, #backToTop, #scrollToTop {
+    background-color: #f6ece3 !important;
+}
+.back-to-top svg path, .scroll-to-top svg path, .scroll-up svg path, .scrollToTop svg path, .go-top svg path, .bato-back-to-top svg path, .to-top svg path, #backToTop svg path, #scrollToTop svg path {
+    stroke: #3d2314 !important;
+    fill: none !important;
+}
+.back-to-top svg polyline, .scroll-to-top svg polyline, .scroll-up svg polyline, .scrollToTop svg polyline, .go-top svg polyline, .bato-back-to-top svg polyline, .to-top svg polyline, #backToTop svg polyline, #scrollToTop svg polyline {
+    stroke: #3d2314 !important;
+    fill: none !important;
 }
 
 .quality__feature {

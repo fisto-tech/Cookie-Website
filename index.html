@@ -547,6 +547,30 @@
 	<script src='https://unpkg.com/lenis@1.3.4/dist/lenis.min.js'></script>
 	<script type="module" src="./script.js?v=2"></script>
 
+	<script>
+		// Force the scroll to top button to the requested colors (targets the injected preview script button)
+		window.addEventListener('load', () => {
+			setTimeout(() => {
+				document.querySelectorAll('div, a, button').forEach(el => {
+					const style = window.getComputedStyle(el);
+					// Identify the circular scroll-to-top button in the bottom corner
+					if (style.position === 'fixed' && parseInt(style.bottom) < 100 && (style.borderRadius === '50%' || style.borderRadius.includes('px'))) {
+						// Only target if it looks like the pink button or is clearly a floating action button
+						if (el.innerHTML.includes('svg') || el.innerHTML.includes('↑') || style.backgroundColor.includes('rgb(255')) {
+							el.style.setProperty('background-color', '#f6ece3', 'important');
+							el.style.setProperty('background', '#f6ece3', 'important');
+							const svgs = el.querySelectorAll('svg');
+							svgs.forEach(svg => {
+								svg.style.setProperty('stroke', '#3d2314', 'important');
+							});
+							const paths = el.querySelectorAll('path, polyline');
+							paths.forEach(p => p.style.setProperty('stroke', '#3d2314', 'important'));
+						}
+					}
+				});
+			}, 1000);
+		});
+	</script>
 </body>
 
 </html>
