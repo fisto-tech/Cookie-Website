@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 // Lenis Connect
 
@@ -46,11 +47,14 @@ modelContainer.appendChild(renderer.domElement);
 
 // Light Functional
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-ambientLight.position.set(0, 1, 10);
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+ambientLight.position.set(0, 0.5, 5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
 scene.add(directionalLight);
 
 // Model Loading
@@ -76,7 +80,7 @@ loader.load(
 		const maxDim = Math.max(size.x, size.y, size.z);
 
 		// Normalize the cookie to a reasonable size
-		const targetSize = 2.25; // Scale model to match the letter K cap height
+		const targetSize = 2.8; // Scale model to match the letter K cap height
 		const scale = targetSize / maxDim;
 
 		model.scale.set(scale, scale, scale);
@@ -91,7 +95,7 @@ loader.load(
 		// and apply it, then rotate the cookie 90 degrees on X to face the camera.
 		const wrapperEuler = new THREE.Euler(0, 1.5, 0.75, "XYZ");
 		const wrapperQuat = new THREE.Quaternion().setFromEuler(wrapperEuler);
-		const faceCameraEuler = new THREE.Euler(Math.PI / 2, 0, 0, "XYZ");
+		const faceCameraEuler = new THREE.Euler(Math.PI / 2, -Math.PI / 2, 0, "XYZ");
 		const faceCameraQuat = new THREE.Quaternion().setFromEuler(faceCameraEuler);
 
 		centeredGroup.quaternion.copy(wrapperQuat).invert().multiply(faceCameraQuat);
@@ -134,18 +138,18 @@ const handleResponsive = () => {
 	if (!model) return;
 
 	const dots = [
-		{ width: 1600, scale: 1, position: [-0.55, -0.15, -2], z: 5 },
-		{ width: 1440, scale: 1, position: [-0.65, -0.15, -2], z: 5 },
-		{ width: 1280, scale: 1, position: [-0.55, -0.15, -2], z: 5 },
-		{ width: 1200, scale: 1, position: [-0.75, -0.15, -2], z: 5 },
-		{ width: 1024, scale: 1, position: [-0.4, -0.15, -3], z: 5.5 },
-		{ width: 960, scale: 1, position: [-0.4, -0.15, -3], z: 6 },
-		{ width: 768, scale: 0.7, position: [-0.5, -0.15, -1.2], z: 6.5 },
-		{ width: 640, scale: 0.7, position: [-1.0, 0.15, -1.2], z: 7 },
-		{ width: 575, scale: 0.6, position: [-1.0, 0.1, -1.2], z: 7 },
-		{ width: 475, scale: 0.5, position: [-1.1, -0.2, -1.2], z: 7 },
-		{ width: 375, scale: 0.45, position: [-1.1, 0.15, -1.2], z: 7.5 },
-		{ width: 0, scale: 0.35, position: [-1.1, -0.3, -1.2], z: 7.5 }
+		{ width: 1600, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
+		{ width: 1440, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
+		{ width: 1280, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
+		{ width: 1200, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
+		{ width: 1024, scale: 0.98, position: [0.08, 0.45, -3], z: 5.5 },
+		{ width: 960, scale: 0.98, position: [0.08, 0.45, -3], z: 6 },
+		{ width: 768, scale: 0.7, position: [0.1, 0.2, -1.2], z: 6.5 },
+		{ width: 640, scale: 0.7, position: [0.05, 0.2, -1.2], z: 7 },
+		{ width: 575, scale: 0.6, position: [0.0, 0.2, -1.2], z: 7 },
+		{ width: 475, scale: 0.5, position: [-0.05, 0.15, -1.2], z: 7 },
+		{ width: 375, scale: 0.45, position: [-0.05, 0.15, -1.2], z: 7.5 },
+		{ width: 0, scale: 0.35, position: [-0.05, 0.15, -1.2], z: 7.5 }
 	];
 
 	const dot = dots.find((d) => width >= d.width) || dots[dots.length - 1];
@@ -227,7 +231,7 @@ const setupGsapAnimations = (model) => {
 		.to(
 			model.scale,
 			{
-				x: window.innerWidth < 575 ? 2: 3,
+				x: window.innerWidth < 575 ? 2 : 3,
 				y: window.innerWidth < 575 ? 2 : 3,
 				z: window.innerWidth < 575 ? 2 : 3,
 				duration: 1
@@ -270,10 +274,15 @@ const setupGsapAnimations = (model) => {
 	});
 
 	timeline3
-		.to(model.rotation, { y: Math.PI * 0.5, duration: 1 })
-		.to(".flip__shadow", { opacity: 1, y: 0, duration: 0.5 }, "<")
-		.to(".flip__heading", { opacity: 1, y: 0, duration: 0.5 }, "<")
-		.to(".flip__text", { opacity: 1, y: 0, duration: 0.5 }, "<");
+		.to(model.scale, {
+			x: () => (window.innerWidth >= 1440 ? 1 : (window.innerWidth >= 1024 ? 0.8 : (window.innerWidth >= 768 ? 0.7 : (window.innerWidth >= 575 ? 0.6 : 0.5)))) * 1.6,
+			y: () => (window.innerWidth >= 1440 ? 1 : (window.innerWidth >= 1024 ? 0.8 : (window.innerWidth >= 768 ? 0.7 : (window.innerWidth >= 575 ? 0.6 : 0.5)))) * 1.6,
+			z: () => (window.innerWidth >= 1440 ? 1 : (window.innerWidth >= 1024 ? 0.8 : (window.innerWidth >= 768 ? 0.7 : (window.innerWidth >= 575 ? 0.6 : 0.5)))) * 1.6,
+			duration: 0.5
+		})
+		.fromTo(".flip__splash-container", { scale: 1.5, opacity: 0 }, { scale: 0.9, opacity: 1, duration: 0.5 }, "<")
+		.to(modelContainer, { y: "5vh", duration: 0.5 }, "<")
+		.to(model.rotation, { y: Math.PI * 4.5, duration: 0.5 }, "<");
 
 	// Steps Section Animations
 
@@ -441,9 +450,9 @@ const setupGsapAnimations = (model) => {
 		.to(
 			model.scale,
 			{
-				x: window.innerHeight < 600 || window.innerWidth < 1024 ? 1.5 : 2.25,
-				y: window.innerHeight < 600 || window.innerWidth < 1024 ? 1.5 : 2.25,
-				z: window.innerHeight < 600 || window.innerWidth < 1024 ? 1.5 : 2.25,
+				x: window.innerHeight < 600 || window.innerWidth < 1024 ? 2.0 : 2.75,
+				y: window.innerHeight < 600 || window.innerWidth < 1024 ? 2.0 : 2.75,
+				z: window.innerHeight < 600 || window.innerWidth < 1024 ? 2.0 : 2.75,
 				duration: 1
 			},
 			"<"
@@ -454,126 +463,69 @@ const setupGsapAnimations = (model) => {
 				x: () => {
 					if (window.innerWidth < 640) return "0vw";
 					if (window.innerHeight < 650) return "0";
-					return "25vw";
+					return "20vw";
 				},
 				y: () => {
-					if (window.innerHeight < 650) return "30vh";
-					if (window.innerWidth < 640) return "25vh";
-					return window.innerWidth < 1200 ? "5vh" : "10vh";
+					if (window.innerHeight < 650) return "5vh";
+					if (window.innerWidth < 640) return "5vh";
+					return "0vh";
 				},
 				duration: 1
 			},
 			"<"
 		);
 
-	// Numbers Section Animations
-
-	const items = gsap.utils.toArray(".numbers__item");
-	const texts = gsap.utils.toArray(".numbers__text");
+	// Quality Section Animations
 
 	const timeline6 = gsap.timeline({
 		scrollTrigger: {
-			trigger: "#numbers",
-			start: "top top",
-			end: () => `+=${window.innerHeight * items.length * 2}`,
-			scrub: 0.2,
-			pin: true,
-			pinSpacing: false
+			trigger: "#numbers-wrapper",
+			start: "top center",
+			end: "bottom center",
+			scrub: 0.2
 		}
 	});
 
-	timeline6.to(".numbers__heading", { opacity: 1, y: 0, duration: 1 }, "-=1");
+	timeline6.to(
+		model.rotation,
+		{
+			y: "+=" + Math.PI * 2,
+			duration: 1,
+			ease: "power2.inOut"
+		},
+		0
+	);
 
-	items.forEach((item, i) => {
-		const others = items.filter((item, index) => index !== i);
-		const otherTexts = texts.filter((_, index) => index !== i);
-		const currentText = texts[i];
+	// (Removed final section animations as per user request to hide the 3D model)
 
-		timeline6
-			.to(others, { opacity: 0.3, duration: 0.5, ease: "power4.out" }, i)
-			.to(item, { opacity: 1, duration: 1, ease: "power2.out" }, i)
-			.to(currentText, { opacity: 1, duration: 0.5, ease: "power2.out" }, i)
-			.to(otherTexts, { opacity: 0, duration: 0.5, ease: "power2.out" }, i)
-			.to(
-				model.rotation,
-				{
-					y: "+=" + Math.PI * 2,
-					duration: 1,
-					ease: "cubic-bezier(0.4, 0, 0.2, 1)"
-				},
-				i
-			);
-	});
-
-	// Final Section Animations
-
+	// CTA Section Animations
 	const timeline7 = gsap.timeline({
 		scrollTrigger: {
-			trigger: "#final",
-			start: "top-=400 top",
-			end: () => `+=${window.innerHeight}px`,
-			scrub: true,
-			onEnter: () => {
-				controlModel = true;
-				modelContainer.style.pointerEvents = "auto";
-				hasSavedRotation = false;
-				rotationReset = false;
-				savedRotation = null;
-				isModelRestored = false;
-			},
-			onLeaveBack: () => {
-				controlModel = false;
-				hasSavedRotation = false;
-				rotationReset = false;
-				savedRotation = null;
-				modelContainer.style.pointerEvents = "none";
-			},
-			onUpdate: (self) => {
-				if (self.progress < 0.01 && self.direction === -1) {
-					model.position.set(0, -0.01, -5);
-					controlModel = false;
-					modelContainer.style.pointerEvents = "none";
-				}
-			}
+			trigger: ".cta-section",
+			start: "top bottom",
+			end: "top top",
+			scrub: true
 		}
 	});
 
 	timeline7
-		.to(".final__order-box", { opacity: 1, y: 0, duration: 0.5 }, "<")
-		.to(
-			donutParticles.material,
-			{ opacity: 1, duration: 1, ease: "power2.out" },
-			"<"
-		)
 		.to(
 			modelContainer,
 			{
-				x: () => {
-					if (window.innerHeight < 600 && window.innerWidth < 575) return "0vw";
-					if (window.innerHeight < 600) return "-30vw";
-					if (window.innerWidth < 768) return "0vw";
-					if (window.innerWidth < 575) return "0vw";
-					return "-40vw";
-				},
-				y: () => {
-					if (window.innerWidth < 1024 && window.innerHeight < 600) return "30vh";
-					if (window.innerHeight < 600) return "10vh";
-					if (window.innerWidth < 1200) return "30vh";
-					return "0vh";
-				},
+				x: "-25vw",
 				duration: 1
 			},
-			"<"
+			0
 		)
 		.to(
 			model.scale,
 			{
-				x: window.innerWidth < 1024 ? 1.5 : 2.25,
-				y: window.innerWidth < 1024 ? 1.5 : 2.25,
-				z: window.innerWidth < 1024 ? 1.5 : 2.25,
+				x: 2.25,
+				y: 2.25,
+				z: 2.25,
 				duration: 1
 			},
-			"<"
+			0
 		);
 };
 
@@ -685,6 +637,17 @@ window.addEventListener("mouseup", () => {
 // Main Site Functional
 
 document.addEventListener("DOMContentLoaded", () => {
+	// Preloader
+	setTimeout(() => {
+		const preloader = document.querySelector('.preloader');
+		if (preloader) {
+			preloader.style.opacity = '0';
+			setTimeout(() => {
+				preloader.style.display = 'none';
+			}, 500);
+		}
+	}, 1000);
+
 	const header = document.querySelector(".header");
 	const openMenu = document.querySelector("#openMenu");
 	const closeMenu = document.querySelector("#closeMenu");
