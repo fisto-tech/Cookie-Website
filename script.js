@@ -138,25 +138,63 @@ const handleResponsive = () => {
 	if (!model) return;
 
 	const dots = [
-		{ width: 1600, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
-		{ width: 1440, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
-		{ width: 1280, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
-		{ width: 1200, scale: 0.98, position: [0.08, 0.45, -2], z: 5 },
-		{ width: 1024, scale: 0.98, position: [0.08, 0.45, -3], z: 5.5 },
-		{ width: 960, scale: 0.98, position: [0.08, 0.45, -3], z: 6 },
-		{ width: 768, scale: 0.7, position: [0.1, 0.2, -1.2], z: 6.5 },
-		{ width: 640, scale: 0.7, position: [0.05, 0.2, -1.2], z: 7 },
-		{ width: 575, scale: 0.6, position: [0.0, 0.2, -1.2], z: 7 },
-		{ width: 475, scale: 0.5, position: [-0.05, 0.15, -1.2], z: 7 },
-		{ width: 375, scale: 0.45, position: [-0.05, 0.15, -1.2], z: 7.5 },
-		{ width: 0, scale: 0.35, position: [-0.05, 0.15, -1.2], z: 7.5 }
+		{ width: 1600, scale: 0.98, position: ["8%", "45%", "-200%"], z: 5 },
+		{ width: 1440, scale: 0.98, position: ["8%", "45%", "-200%"], z: 5 },
+		{ width: 1280, scale: 0.98, position: ["8%", "45%", "-200%"], z: 5 },
+		{ width: 1200, scale: 0.98, position: ["8%", "45%", "-200%"], z: 5 },
+		{ width: 1024, scale: 0.98, position: ["8%", "45%", "-300%"], z: 5.5 },
+		{ width: 960, scale: 0.98, position: ["8%", "45%", "-300%"], z: 6 },
+		{ width: 768, scale: 0.7, position: ["10%", "20%", "-120%"], z: 6.5 },
+		{ width: 640, scale: 0.7, position: ["5%", "20%", "-120%"], z: 7 },
+		{ width: 575, scale: 0.6, position: ["0%", "20%", "-120%"], z: 7 },
+		{ width: 475, scale: 0.5, position: ["-5%", "15%", "-120%"], z: 7 },
+		{ width: 375, scale: 0.45, position: ["-5%", "15%", "-120%"], z: 7.5 },
+		{ width: 0, scale: 0.35, position: ["-5%", "15%", "-120%"], z: 7.5 }
 	];
 
-	const dot = dots.find((d) => width >= d.width) || dots[dots.length - 1];
+	let lowerDot = dots[dots.length - 1];
+	let upperDot = dots[0];
 
-	model.scale.set(dot.scale, dot.scale, dot.scale);
-	model.position.set(...dot.position);
-	camera.position.z = dot.z;
+	for (let i = 0; i < dots.length - 1; i++) {
+		if (width <= dots[i].width && width >= dots[i + 1].width) {
+			upperDot = dots[i];
+			lowerDot = dots[i + 1];
+			break;
+		}
+	}
+
+	let progress = 0;
+	if (upperDot.width !== lowerDot.width) {
+		progress = (width - lowerDot.width) / (upperDot.width - lowerDot.width);
+	}
+
+	if (width >= dots[0].width) {
+		lowerDot = dots[0];
+		upperDot = dots[0];
+		progress = 1;
+	}
+
+	const parsePercent = (val) => (typeof val === 'string' && val.endsWith('%')) ? parseFloat(val) / 100 : val;
+	
+	const getPos = (dot) => [
+		parsePercent(dot.position[0]),
+		parsePercent(dot.position[1]),
+		parsePercent(dot.position[2])
+	];
+
+	const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+
+	const scale = lerp(lowerDot.scale, upperDot.scale, progress);
+	const lowerPos = getPos(lowerDot);
+	const upperPos = getPos(upperDot);
+	const posX = lerp(lowerPos[0], upperPos[0], progress);
+	const posY = lerp(lowerPos[1], upperPos[1], progress);
+	const posZ = lerp(lowerPos[2], upperPos[2], progress);
+	const camZ = lerp(lowerDot.z, upperDot.z, progress);
+
+	model.scale.set(scale, scale, scale);
+	model.position.set(posX, posY, posZ);
+	camera.position.z = camZ;
 
 	camera.aspect = modelContainer.clientWidth / modelContainer.clientHeight;
 	camera.updateProjectionMatrix();
@@ -242,8 +280,8 @@ const setupGsapAnimations = (model) => {
 		.to(
 			modelContainer,
 			{
-				x: "0vw",
-				y: window.innerHeight >= 800 ? "10vh" : "20vh",
+				x: () => `${(0 * window.innerWidth) / modelContainer.clientWidth}%`,
+				y: () => window.innerHeight >= 800 ? `${(10 * window.innerHeight) / modelContainer.clientHeight}%` : `${(20 * window.innerHeight) / modelContainer.clientHeight}%`,
 				duration: 1
 			},
 			"<+=0.1"
@@ -281,8 +319,8 @@ const setupGsapAnimations = (model) => {
 			duration: 0.5
 		})
 		.fromTo(".flip__splash-container", { scale: 0.5, opacity: 0 }, { scale: 1.1, opacity: 1, duration: 0.5 }, "<")
-		.to(modelContainer, { y: "5vh", duration: 0.5 }, "<")
-		.to(model.rotation, { y: Math.PI * 4, duration: 0.5 }, "<");
+		.to(modelContainer, { y: () => `${(5 * window.innerHeight) / modelContainer.clientHeight}%`, duration: 0.5 }, "<")
+		.to(model.rotation, { x: 0, y: Math.PI * 4 + 1.5, z: 0.75, duration: 0.5 }, "<");
 
 	// Steps Section Animations
 
@@ -312,7 +350,7 @@ const setupGsapAnimations = (model) => {
 			modelContainer,
 			{
 				y: () => {
-					return window.innerWidth < 768 ? "25vh" : "5vh";
+					return window.innerWidth < 768 ? `${(25 * window.innerHeight) / modelContainer.clientHeight}%` : `${(5 * window.innerHeight) / modelContainer.clientHeight}%`;
 				},
 				duration: 1
 			},
@@ -458,17 +496,25 @@ const setupGsapAnimations = (model) => {
 			"<"
 		)
 		.to(
+			model.rotation,
+			{
+				y: "+=" + Math.PI * 2,
+				duration: 1
+			},
+			"<"
+		)
+		.to(
 			modelContainer,
 			{
 				x: () => {
-					if (window.innerWidth < 640) return "0vw";
-					if (window.innerHeight < 650) return "0";
-					return "20vw";
+					if (window.innerWidth < 640) return `${(0 * window.innerWidth) / modelContainer.clientWidth}%`;
+					if (window.innerHeight < 650) return "0%";
+					return `${(20 * window.innerWidth) / modelContainer.clientWidth}%`;
 				},
 				y: () => {
-					if (window.innerHeight < 650) return "5vh";
-					if (window.innerWidth < 640) return "5vh";
-					return "0vh";
+					if (window.innerHeight < 650) return `${(5 * window.innerHeight) / modelContainer.clientHeight}%`;
+					if (window.innerWidth < 640) return `${(5 * window.innerHeight) / modelContainer.clientHeight}%`;
+					return `${(0 * window.innerHeight) / modelContainer.clientHeight}%`;
 				},
 				duration: 1
 			},
@@ -512,7 +558,7 @@ const setupGsapAnimations = (model) => {
 		.to(
 			modelContainer,
 			{
-				x: "-25vw",
+				x: () => `${(-25 * window.innerWidth) / modelContainer.clientWidth}%`,
 				duration: 1
 			},
 			0
