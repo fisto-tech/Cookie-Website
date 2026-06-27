@@ -80,7 +80,7 @@ loader.load(
 		const maxDim = Math.max(size.x, size.y, size.z);
 
 		// Normalize the cookie to a reasonable size
-		const targetSize = 2.8; // Scale model to match the letter K cap height
+		const targetSize = 2.4; // Scale model to match the cookie image size
 		const scale = targetSize / maxDim;
 
 		model.scale.set(scale, scale, scale);
@@ -175,7 +175,7 @@ const handleResponsive = () => {
 	}
 
 	const parsePercent = (val) => (typeof val === 'string' && val.endsWith('%')) ? parseFloat(val) / 100 : val;
-	
+
 	const getPos = (dot) => [
 		parsePercent(dot.position[0]),
 		parsePercent(dot.position[1]),
@@ -217,7 +217,7 @@ const handleResponsive = () => {
 
 		const distance = (posZ - camera.position.z) / vec.z;
 		const targetPos = camera.position.clone().add(vec.multiplyScalar(distance));
-		
+
 		posX = targetPos.x;
 		posY = targetPos.y;
 	}
@@ -274,7 +274,27 @@ const setupGsapAnimations = (model) => {
 			end: () => `+=${window.innerHeight * 1.2}px`,
 			pin: true,
 			pinSpacing: false,
-			scrub: true
+			scrub: true,
+			onUpdate: (self) => {
+				const cookie1 = document.querySelector('.cookie-state-1');
+				const cookie2 = document.querySelector('.cookie-state-2');
+				const cookie3 = document.querySelector('.cookie-state-3');
+				if (cookie1 && cookie2 && cookie3) {
+					if (self.progress < 0.15) {
+						cookie1.style.opacity = '1';
+						cookie2.style.opacity = '0';
+						cookie3.style.opacity = '0';
+					} else if (self.progress < 0.3) {
+						cookie1.style.opacity = '0';
+						cookie2.style.opacity = '1';
+						cookie3.style.opacity = '0';
+					} else {
+						cookie1.style.opacity = '0';
+						cookie2.style.opacity = '0';
+						cookie3.style.opacity = '1';
+					}
+				}
+			}
 		}
 	});
 
@@ -619,9 +639,9 @@ const setupGsapAnimations = (model) => {
 				const currentY = gsap.getProperty(modelContainer, "y");
 				const yPx = parseFloat(currentY) || 0;
 				// On mobile, scroll the model up at the same rate as the page so it appears pinned to CTA section
-				return window.innerWidth < 1024 
-					? yPx - document.querySelector(".cta-section").offsetHeight 
-					: yPx; 
+				return window.innerWidth < 1024
+					? yPx - document.querySelector(".cta-section").offsetHeight
+					: yPx;
 			},
 			ease: "none"
 		}
