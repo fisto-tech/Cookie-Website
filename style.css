@@ -236,7 +236,7 @@ body.menu-open .header {
 .header__btn-toggle i {
 	width: 80%;
 	height: 2px;
-	background-color: white;
+	background-color: rgb(77, 38, 3);
 }
 
 /* Mobile Menu */
@@ -248,7 +248,7 @@ body.menu-open .header {
 	z-index: 1000;
 	width: 100%;
 	height: 100vh;
-	background: var(--donut-landing-main-color);
+	background:rgb(77, 38, 3) ;
 	transform: translateX(-100%);
 	transition: transform 0.3s;
 }
@@ -1065,8 +1065,8 @@ body.menu-open .header {
 }
 
 .quality__heading {
-	font-family: "Bebas Neue", sans-serif;
-	font-size: clamp(4rem, 8vw, 120px);
+	font-family:'Times New Roman', Times, serif;
+	font-size: clamp(4rem, 8vw, 80px);
 	font-weight: 400;
 	color: #3d2314;
 	line-height: 0.9;
@@ -1409,7 +1409,7 @@ body.menu-open .header {
 	background-position: center;
 	position: relative;
 	z-index: 99;
-	padding: 120px 0;
+	padding: 70px 0;
 	overflow: hidden;
 }
 
@@ -1507,7 +1507,6 @@ body.menu-open .header {
 	position: relative;
 	z-index: 101;
 	padding: 20px 0 10px;
-	height: 150px;
 	color: white;
 }
 
@@ -1584,7 +1583,7 @@ body.menu-open .header {
 
 .site-footer__bottom {
 	border-top: 1px solid rgba(255, 255, 255, 0.1);
-	padding-top: 20px;
+	padding-top:20px;
 	text-align: center;
 	font-family: "Outfit", sans-serif;
 	font-size: 0.75rem;
@@ -2164,13 +2163,152 @@ body.menu-open .header {
 	.steps__card-title {
 		margin-bottom: 10px;
 	}
+	.steps__card-cookie-img {
+		max-height: 35vh;
+		width: auto;
+		max-width: 60vw;
+		object-fit: contain;
+	}
+	.steps__cards {
+		width: calc(100% - 40px) !important;
+		left: 20px !important;
+	}
 }
 
 @media screen and (max-width: 575px) {
+	#steps {
+		padding: 0 20px 40px;
+	}
 	.steps__card-content {
 		padding: 20px 10px;
 	}
 	.hero__heading {
 		font-size: clamp(3rem, 15vw, 6rem);
+	}
+	.steps__card,
+	.steps__card-first,
+	.steps__cards {
+		border-radius: 20px;
+	}
+}
+
+/* --- Flip Section Mobile Overlap Fix --- */
+@media screen and (max-width: 1024px) {
+	.heading-box .flip__heading {
+		padding-top: 0;
+	}
+	.flip__text {
+		margin-top: 20px;
+	}
+	.flip__content {
+		margin-top: 30px;
+		flex-direction: column-reverse;
+		gap: 30px;
+	}
+	.flip__stats {
+		position: relative;
+		left: auto;
+		top: auto;
+		transform: none;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 100%;
+		gap: 20px;
+	}
+	.flip__splash-container {
+		margin-top: 0;
+	}
+
+	/* Promo Banner & Trust Features Mobile Fix */
+	.promo-banner__container {
+		flex-direction: column;
+		text-align: center;
+		gap: 10px;
+	}
+	.promo-banner__left {
+		flex-direction: row;
+		text-align: left;
+		gap: 15px;
+	}
+	.trust-features__container {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 30px 15px;
+	}
+	.trust-feature {
+		flex-direction: column;
+		text-align: center;
+	}
+	.trust-feature__divider {
+		display: none;
+	}
+	.quality__features {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 20px;
+		justify-items: center;
+	}
+	.promo-banner__cookie {
+		width: 150px; /* Restrict size on mobile */
+		margin: 0 auto;
+	}
+
+	/* CTA Section Mobile Fix */
+	.cta-section__container {
+		flex-direction: column;
+		text-align: center;
+		align-items: center;
+	}
+	.cta-section__right {
+		display: contents;
+	}
+	.cta-section__heading {
+		order: 1;
+		font-size: clamp(2rem, 10vw, 3rem);
+		margin-bottom: 20px;
+	}
+	.cta-section__left {
+		order: 2;
+		width: 100%;
+		height: 250px; /* Space for the 3D cookie */
+	}
+	.cta-section__text {
+		order: 3;
+		text-align: center;
+		margin-top: 0px;
+		margin-bottom: 20px;
+	}
+	.cta-section__ratings {
+		order: 4;
+		justify-content: center;
+	}
+	.cta-section__btn {
+		order: 5;
+		margin-bottom: 20px;
+	}
+
+	/* Site Footer Mobile Fix */
+	.site-footer__container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 10px 10px;
+		text-align: center;
+	}
+	.site-footer__brand {
+		grid-column: 1 / -1;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.site-footer__socials {
+		justify-content: center;
+	}
+	.site-footer__contact {
+		grid-column: 1 / -1;
+	}
+	.site-footer__links ul, .site-footer__contact ul {
+		padding: 0;
 	}
 }

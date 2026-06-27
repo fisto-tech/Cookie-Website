@@ -187,17 +187,44 @@ const handleResponsive = () => {
 	const scale = lerp(lowerDot.scale, upperDot.scale, progress);
 	const lowerPos = getPos(lowerDot);
 	const upperPos = getPos(upperDot);
-	const posX = lerp(lowerPos[0], upperPos[0], progress);
-	const posY = lerp(lowerPos[1], upperPos[1], progress);
 	const posZ = lerp(lowerPos[2], upperPos[2], progress);
 	const camZ = lerp(lowerDot.z, upperDot.z, progress);
 
-	model.scale.set(scale, scale, scale);
-	model.position.set(posX, posY, posZ);
 	camera.position.z = camZ;
-
 	camera.aspect = modelContainer.clientWidth / modelContainer.clientHeight;
 	camera.updateProjectionMatrix();
+
+	// Dynamically calculate model position to align with `.empty-o`
+	const emptyO = document.querySelector('.empty-o');
+	let posX = lerp(lowerPos[0], upperPos[0], progress);
+	let posY = lerp(lowerPos[1], upperPos[1], progress);
+
+	if (emptyO && modelContainer) {
+		const rect = emptyO.getBoundingClientRect();
+		const containerRect = modelContainer.getBoundingClientRect();
+
+		// Calculate center of empty-o as if scroll is at 0
+		const centerX = rect.left + window.scrollX + rect.width / 2;
+		const centerY = rect.top + window.scrollY + rect.height / 2;
+
+		// Normalized device coordinates relative to the canvas
+		const ndcX = ((centerX - containerRect.left) / containerRect.width) * 2 - 1;
+		const ndcY = -((centerY - containerRect.top) / containerRect.height) * 2 + 1;
+
+		const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
+		vec.unproject(camera);
+		vec.sub(camera.position).normalize();
+
+		const distance = (posZ - camera.position.z) / vec.z;
+		const targetPos = camera.position.clone().add(vec.multiplyScalar(distance));
+		
+		posX = targetPos.x;
+		posY = targetPos.y;
+	}
+
+	model.scale.set(scale, scale, scale);
+	model.position.set(posX, posY, posZ);
+
 	renderer.setSize(modelContainer.clientWidth, modelContainer.clientHeight);
 	renderer.setPixelRatio(window.devicePixelRatio);
 };
@@ -558,7 +585,8 @@ const setupGsapAnimations = (model) => {
 		.to(
 			modelContainer,
 			{
-				x: () => `${(-25 * window.innerWidth) / modelContainer.clientWidth}%`,
+				x: () => window.innerWidth < 1024 ? "0%" : `${(-25 * window.innerWidth) / modelContainer.clientWidth}%`,
+				y: () => window.innerWidth < 1024 ? "-15%" : "+=0", // Move it slightly up to sit below the heading
 				duration: 1
 			},
 			0
@@ -573,6 +601,31 @@ const setupGsapAnimations = (model) => {
 			},
 			0
 		);
+
+	// Make the model stop at CTA section on mobile (scroll away with the page)
+	const timeline8 = gsap.timeline({
+		scrollTrigger: {
+			trigger: ".cta-section",
+			start: "top top",
+			end: "bottom top",
+			scrub: true
+		}
+	});
+
+	timeline8.to(
+		modelContainer,
+		{
+			y: () => {
+				const currentY = gsap.getProperty(modelContainer, "y");
+				const yPx = parseFloat(currentY) || 0;
+				// On mobile, scroll the model up at the same rate as the page so it appears pinned to CTA section
+				return window.innerWidth < 1024 
+					? yPx - document.querySelector(".cta-section").offsetHeight 
+					: yPx; 
+			},
+			ease: "none"
+		}
+	);
 };
 
 // Control Model Functional
