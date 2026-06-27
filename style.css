@@ -482,9 +482,11 @@ body.menu-open .header {
 .cookie-state-1 {
 	opacity: 1;
 }
+
 .cookie-state-2 {
 	opacity: 0;
 }
+
 .cookie-state-3 {
 	opacity: 0;
 }

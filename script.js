@@ -274,27 +274,7 @@ const setupGsapAnimations = (model) => {
 			end: () => `+=${window.innerHeight * 1.2}px`,
 			pin: true,
 			pinSpacing: false,
-			scrub: true,
-			onUpdate: (self) => {
-				const cookie1 = document.querySelector('.cookie-state-1');
-				const cookie2 = document.querySelector('.cookie-state-2');
-				const cookie3 = document.querySelector('.cookie-state-3');
-				if (cookie1 && cookie2 && cookie3) {
-					if (self.progress < 0.15) {
-						cookie1.style.opacity = '1';
-						cookie2.style.opacity = '0';
-						cookie3.style.opacity = '0';
-					} else if (self.progress < 0.3) {
-						cookie1.style.opacity = '0';
-						cookie2.style.opacity = '1';
-						cookie3.style.opacity = '0';
-					} else {
-						cookie1.style.opacity = '0';
-						cookie2.style.opacity = '0';
-						cookie3.style.opacity = '1';
-					}
-				}
-			}
+			scrub: true
 		}
 	});
 
